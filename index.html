@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width" />
+  <title>셔ㅕㅗㅍㄹ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>셔ㅕㅗㅍㄹ</h1>
+  <div id="test"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>할로윈 주사위 게임</title>
+<style>
+  body { font-family: Arial; background: #1a1a1a; color: #fff; text-align: center; }
+  .board { display: flex; flex-wrap: wrap; width: 600px; margin: 20px auto; }
+  .cell { width: 60px; height: 60px; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; margin: 1px; position: relative; }
+  .player { background: orange; border-radius: 50%; width: 40px; height: 40px; position: absolute; top: 10px; left: 10px; transition: all 0.3s ease; }
+  button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1>🎃 할로윈 주사위 게임 🎃</h1>
+<div class="board" id="board"></div>
+<button onclick="rollDice()">🎲 주사위 굴리기</button>
+<p id="diceResult"></p>
+<p id="message"></p>
+
+<script>
+const boardSize = 30;
+let position = 1;
+
+// 이벤트 칸
+const events = {
+  5: "👻 유령을 만나 -2칸 뒤로 이동!",
+  10: "🧟 좀비 출몰! 한 턴 쉬기!",
+  15: "🍬 사탕 발견! 앞으로 +2칸!",
+  20: "🕸️ 거미줄에 걸림! -3칸!",
+  25: "🎃 마법 호박! 앞으로 +4칸 이동!"
+};
+
+// 보드 생성
+const board = document.getElementById('board');
+for(let i=1;i<=boardSize;i++){
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.id = 'cell'+i;
+  cell.innerText = i;
+  board.appendChild(cell);
+}
+
+// 플레이어 생성
+const player = document.createElement('div');
+player.className = 'player';
+document.getElementById('cell1').appendChild(player);
+
+let skipTurn = false;
+
+function rollDice(){
+  if(skipTurn){
+    document.getElementById('message').innerText = "😵 이번 턴은 쉬어야 합니다!";
+    skipTurn = false;
+    return;
+  }
+
+  let dice = Math.floor(Math.random()*6)+1;
+  document.getElementById('diceResult').innerText = "🎲 주사위 결과: " + dice;
+
+  movePlayer(dice);
+}
+
+function movePlayer(steps){
+  if(steps === 0) return;
+
+  // 이전 칸에서 플레이어 제거
+  document.getElementById('cell'+position).removeChild(player);
+
+  position++;
+  if(position > boardSize) position = boardSize;
+
+  document.getElementById('cell'+position).appendChild(player);
+
+  // 다음 칸으로 300ms 후 이동
+  setTimeout(()=> movePlayer(steps-1), 300);
+
+  // 이벤트 확인 (마지막 칸에 도착했을 때)
+  if(steps === 1 && events[position]){
+    setTimeout(()=>{
+      let msg = events[position];
+      document.getElementById('message').innerText = msg;
+
+      if(position === 5) position = Math.max(1, position-2);
+      if(position === 10) skipTurn = true;
+      if(position === 15) position += 2;
+      if(position === 20) position = Math.max(1, position-3);
+      if(position === 25) position += 4;
+
+      // 위치 조정
+      if(position > boardSize) position = boardSize;
+      document.getElementById('cell'+position).appendChild(player);
+    }, 300);
+  }
+}
+</script>
+</body>
+</html>
